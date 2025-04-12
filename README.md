@@ -1,1 +1,1 @@
-# cpp-dinamic-ecosystem
+# cpp-dynamic-ecosystem
