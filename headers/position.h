@@ -2,8 +2,6 @@
 #define POSITION_H
 #include <vector>
 
-using namespace std;
-
 class PositionImpl;
 
 class Position {
@@ -19,7 +17,7 @@ public:
     void setX(int x);
     void setY(int y);
 
-    int distanceToPoint(Position other) const;
+    int distanceToPoint(const Position& other) const;
     vector<Position> getAdjacentPositions() const;
 };
 

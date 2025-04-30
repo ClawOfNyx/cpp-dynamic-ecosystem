@@ -17,7 +17,7 @@ int Position::getY() const { return pImpl->getY(); }
 void Position::setX(int X) { pImpl->setX(X); }
 void Position::setY(int Y) { pImpl->setY(Y); }
 
-int Position::distanceToPoint(Position other) const { return pImpl->distanceToPoint(*other.pImpl); }
+int Position::distanceToPoint(const Position& other) const { return pImpl->distanceToPoint(*other.pImpl); }
 
 vector<Position> Position::getAdjacentPositions() const {
     vector<PositionImpl> impls = pImpl->getAdjacentPositions();
