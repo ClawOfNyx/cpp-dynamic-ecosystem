@@ -28,10 +28,12 @@ void Organism::incrementAge() {
     ++age;
 }
 
-bool Organism::isReadyToReproduce() const {
-    return nutrients > 10.0f;
-}
-
 bool Organism::isDead() const {
     return age >= maxLifespan || nutrients <= 0;
+}
+
+Organism* Organism::reproduce() {
+    // Default implementation returns nullptr
+    // Derived classes will override with specific reproduction logic
+    return nullptr;
 }

@@ -17,14 +17,21 @@ public:
     Organism(OrganismType type, float nutrients, int maxLifespan);
     virtual ~Organism() = default;
 
+    // Non-virtual methods 
     OrganismType getType() const;
     float getNutrients() const;
     void addNutrients(float amount);
     void consumeNutrients(float amount);
     int getAge() const;
     void incrementAge();
-    virtual bool isReadyToReproduce() const;
     bool isDead() const;
+    
+    // Pure virtual methods
+    virtual void update() = 0;
+    virtual bool isReadyToReproduce() const = 0;
+    virtual void consumeResources() = 0;
+    
+    virtual Organism* reproduce();
 };
 
 #endif
