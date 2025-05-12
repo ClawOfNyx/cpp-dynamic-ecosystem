@@ -2,18 +2,31 @@
 #define PLANT_H
 
 #include "Organism.h"
-// #include "Grid.h"
 
 class Plant : public Organism {
 private:
     float growthRate;
     float nutrientAbsorptionRate;
+    float spreadingThreshold;
 
 public:
     Plant(float nutrients, int maxLifespan, float growthRate, float nutrientAbsorptionRate);
     
-    // void trySpread(Grid& grid);
-    // void update(Grid& grid) override;
+    // Getters
+    float getGrowthRate() const;
+    float getNutrientAbsorptionRate() const;
+    
+    // Setters
+    void setGrowthRate(float rate);
+    void setNutrientAbsorptionRate(float rate);
+    
+    void update() override;
+    bool isReadyToReproduce() const override;
+    void consumeResources() override;
+    
+    Organism* reproduce() override;
+
+    void absorbNutrients();
 };
 
 #endif
