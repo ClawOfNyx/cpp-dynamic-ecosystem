@@ -1,6 +1,6 @@
 #include "Animal.h"
-#include "position.h"
-// #include "Grid.h" // Include the Grid header for the implementation
+#include <cstdlib>
+#include <ctime>
 
 Animal::Animal(float nutrients, 
                int maxLifespan, 
@@ -68,54 +68,59 @@ void Animal::setMass(int newMass) {
     mass = newMass;
 }
 
-// Position Animal::findFood(Grid& grid) {
-    
-//     return Position(0, 0);
-// }
+void Animal::update() {
+    consumeResources();
+    incrementAge();
+}
 
-// void Animal::moveTowardsPosition(Position targetPos) {
-    
-// }
+bool Animal::isReadyToReproduce() const {
+    return nutrients > reproductionNutrientThreshold;
+}
 
-// bool Animal::eat(Organism* food) {
-//     if (food == nullptr) return false;
-    
-//     bool canEat = false;
-    
-//     // Check if animal can eat the food based on its type
-//     if (animalType == AnimalType::HERBIVORE && food->getType() == OrganismType::PLANT) {
-//         canEat = true;
-//     } else if (animalType == AnimalType::CARNIVORE && food->getType() == OrganismType::ANIMAL) {
-//         canEat = true;
-//     } else if (animalType == AnimalType::OMNIVORE) {
-//         canEat = true;
-//     }
-    
-//     if (canEat) {
-//         float foodNutrients = food->getNutrients();
-//         food->consumeNutrients(foodNutrients);
-//         addNutrients(foodNutrients);
-//         return true;
-//     }
-    
-//     return false;
-// }
+void Animal::consumeResources() {
+    consumeNutrients(nutrientRequirement);
+}
 
-// bool Animal::tryReproduce(Grid& grid) {
-//     // Check if animal has enough nutrients to reproduce
-//     if (getNutrients() > reproductionNutrientThreshold) {
-//         consumeNutrients(reproductionNutrientThreshold / 2);
-//         return true;
-//     }
-//     return false;
-// }
+Organism* Animal::reproduce() {
+    if (!isReadyToReproduce()) {
+        return nullptr;
+    }
 
-// void Animal::update(Grid& grid) {
-//     consumeNutrients(nutrientRequirement);
-//     incrementAge();
-//     if (getNutrients() < reproductionNutrientThreshold) {
-//         Position foodPos = findFood(grid);
-//         moveTowardsPosition(foodPos);
-//     }
-//     tryReproduce(grid);
-// }
+    consumeNutrients(reproductionNutrientThreshold / 2);
+
+    float nutrientVariation = 0.9f + static_cast<float>(rand()) / RAND_MAX * 0.2f;
+    int speedVariation = static_cast<int>(0.9f + static_cast<float>(rand()) / RAND_MAX * 0.2f);
+    
+    return new Animal(
+        reproductionNutrientThreshold / 2, 
+        maxLifespan,                       
+        static_cast<int>(movementSpeed * speedVariation),
+        visionDistance,
+        animalType,
+        nutrientRequirement * nutrientVariation,
+        reproductionNutrientThreshold,
+        mass
+    );
+}
+
+bool Animal::canEat(const Organism* food) const {
+    if (food == nullptr) return false;
+    
+    if (animalType == AnimalType::HERBIVORE && food->getType() == OrganismType::PLANT) {
+        return true;
+    } else if (animalType == AnimalType::CARNIVORE && food->getType() == OrganismType::ANIMAL) {
+        return true;
+    } else if (animalType == AnimalType::OMNIVORE) {
+        return true;
+    }
+    
+    return false;
+}
+
+void Animal::eat(Organism* food) {
+    if (food == nullptr || !canEat(food)) return;
+    
+    float foodNutrients = food->getNutrients();
+    addNutrients(foodNutrients);
+    
+}

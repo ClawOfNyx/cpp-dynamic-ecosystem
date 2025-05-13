@@ -2,7 +2,6 @@
 #define ANIMAL_H
 
 #include "Organism.h"
-// #include "Grid.h"
 
 enum class AnimalType {
     HERBIVORE,
@@ -45,12 +44,14 @@ public:
     void setReproductionNutrientThreshold(float threshold);
     void setMass(int newMass);
 
-    // Behaviors
-    // Position findFood(Grid& grid);
-    // void moveTowardsPosition(Position targetPos);
-    // bool eat(Organism* food);
-    // bool tryReproduce(Grid& grid);
-    // void update(Grid& grid);
+    void update() override;
+    bool isReadyToReproduce() const override;
+    void consumeResources() override;
+    
+    Organism* reproduce() override;
+
+    bool canEat(const Organism* food) const;
+    void eat(Organism* food);
 };
 
 #endif
