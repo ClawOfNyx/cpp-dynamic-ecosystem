@@ -1,5 +1,5 @@
-#include "tile.h"
-#include "tile_impl.h"
+#include "Tile.h"
+#include "TileImpl.h"
 #include <stdexcept>
 
 using namespace std;
@@ -21,4 +21,8 @@ void Tile::setOccupant(const Organism& organism) {
 }
 void Tile::clearOccupant() {
     pImpl->clearOccupant();
+}
+
+Position& Tile::getPosition() {
+    pImpl->getPosition();
 }

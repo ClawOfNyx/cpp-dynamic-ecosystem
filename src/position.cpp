@@ -1,5 +1,5 @@
-#include "position.h"
-#include "position_impl.h"
+#include "Position.h"
+#include "PositionImpl.h"
 
 using namespace std;
 
@@ -19,9 +19,9 @@ void Position::setY(int Y) { pImpl->setY(Y); }
 
 int Position::distanceToPoint(const Position& other) const { return pImpl->distanceToPoint(*other.pImpl); }
 
-vector<Position> Position::getAdjacentPositions() const {
-    vector<PositionImpl> impls = pImpl->getAdjacentPositions();
-    vector<Position> positions;
+std::vector<Position> Position::getAdjacentPositions() const {
+    std::vector<PositionImpl> impls = pImpl->getAdjacentPositions();
+    std::vector<Position> positions;
     positions.reserve(impls.size());
     for (const auto& impl : impls) {
         positions.emplace_back(impl.getX(), impl.getY());

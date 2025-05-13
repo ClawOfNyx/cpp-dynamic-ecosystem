@@ -1,7 +1,7 @@
 #ifndef GRID_H
 #define GRID_H
 #include <vector>
-#include "grid_impl.h"
+#include "GridImpl.h"
 
 class Grid{
 private:

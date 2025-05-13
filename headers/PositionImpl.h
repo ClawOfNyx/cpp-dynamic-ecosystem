@@ -17,6 +17,6 @@ public:
     void setY(int Y) { y = Y; }
 
     int distanceToPoint(const PositionImpl& other);
-    vector<PositionImpl> getAdjacentPositions();
+    std::vector<PositionImpl> getAdjacentPositions();
 };
 #endif

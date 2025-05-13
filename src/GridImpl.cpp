@@ -1,6 +1,7 @@
-#include "grid_impl.h"
+#include "GridImpl.h"
 #include <stdexcept>
 #include <cmath>
+#include <limits> // For std::numeric_limits
 
 using namespace std;
 

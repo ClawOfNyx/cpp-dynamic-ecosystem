@@ -1,4 +1,4 @@
-#include "position_impl.h"
+#include "PositionImpl.h"
 #include <cmath>
 
 using namespace std;
@@ -18,8 +18,8 @@ int PositionImpl::distanceToPoint(const PositionImpl& other){
     return static_cast<int>(sqrt(pow(other.getX() - x, 2) + pow(other.getY() - y, 2)));
 }
 
-vector<PositionImpl> PositionImpl::getAdjacentPositions(){
-    return vector<PositionImpl>{
+std::vector<PositionImpl> PositionImpl::getAdjacentPositions(){
+    return std::vector<PositionImpl>{
         PositionImpl(x - 1, y),
         PositionImpl(x + 1, y),
         PositionImpl(x, y - 1),

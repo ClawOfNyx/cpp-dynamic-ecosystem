@@ -1,7 +1,7 @@
 #ifndef GRID_IMPL_H
 #define GRID_IMPL_H
 #include <vector>
-#include "tile.h"
+#include "Tile.h"
 
 class GridImpl {
 private:

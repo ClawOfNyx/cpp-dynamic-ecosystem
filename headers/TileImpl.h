@@ -1,6 +1,6 @@
 #ifndef TILE_IMPL_H
 #define TILE_IMPL_H
-#include "position.h"
+#include "Position.h"
 #include "Organism.h"
 
 class TileImpl {
@@ -15,6 +15,7 @@ public:
     Organism& getOccupant() const;
     void setOccupant(const Organism& organism);
     void clearOccupant();
+    Position& getPosition();
 };
 
 #endif

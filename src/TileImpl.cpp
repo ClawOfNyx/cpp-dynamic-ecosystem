@@ -1,4 +1,4 @@
-#include "tile_impl.h"
+#include "TileImpl.h"
 #include <stdexcept>
 
 using namespace std;
@@ -28,6 +28,10 @@ void TileImpl::clearOccupant() {
     if (organism != nullptr) {
         organism = nullptr;
     }
+}
+
+Position& TileImpl::getPosition() {
+    return position;
 }
 
     

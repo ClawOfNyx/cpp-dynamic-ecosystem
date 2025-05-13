@@ -18,7 +18,7 @@ public:
     void setY(int y);
 
     int distanceToPoint(const Position& other) const;
-    vector<Position> getAdjacentPositions() const;
+    std::vector<Position> getAdjacentPositions() const;
 };
 
 #endif
