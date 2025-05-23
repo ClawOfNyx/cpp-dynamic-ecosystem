@@ -11,10 +11,14 @@ class WorldManagerImpl;
 
 class WorldManager {
 private:
+    static WorldManager* instance;
+
     WorldManagerImpl* pImpl;
-public:
     WorldManager(int width, int height, float baseNutrients = 1.0f);
     ~WorldManager();
+public:
+    
+    static WorldManager& getInstance(int width, int height, float nutrient);
     
     void update();
 
@@ -22,15 +26,9 @@ public:
     void removeOrganism(Organism* organism);
     void removeOrganism(Position position);
     void spawnPlantFromDeadOrganism(Position position, float nutrients);
-    
-    Position findFood(const Animal* animal, Position position);
-    bool moveAnimal(Animal* animal, Position fromPos, Position toPos);
-    bool tryEating(Animal* animal, Position position);
-    bool tryReproduction(Organism* organism, Position position);
-    
-    bool tryPlantSpread(Plant* plant, Position position);
-    
-    Position findClosestOrganismOfType(Position position, OrganismType type);
+
+    WorldManager(const WorldManager&) = delete;
+    WorldManager& operator=(const WorldManager&) = delete;
 };
 
 #endif

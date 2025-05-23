@@ -1,15 +1,23 @@
 #include "GridImpl.h"
 #include <stdexcept>
 #include <cmath>
-#include <limits> // For std::numeric_limits
+#include <limits>
+#include <iostream>
 
 using namespace std;
 
 GridImpl::GridImpl(int width, int height) : width(width), height(height) {
-    tiles.resize(height, vector<Tile>(width, Tile(Position(0, 0))));
+    cout << "Initializing grid with dimensions: " << width << "x" << height << endl;
+    
+    if (width <= 0 || height <= 0) {
+        throw invalid_argument("Grid dimensions must be positive");
+    }
+    
+    tiles.resize(height);
     for (int y = 0; y < height; ++y) {
+        tiles[y].reserve(width);
         for (int x = 0; x < width; ++x) {
-            tiles[y][x] = Tile(Position(x, y));
+            tiles[y].emplace_back(Position(x, y));
         }
     }
 }
@@ -64,14 +72,14 @@ Organism& GridImpl::findClosestOrganism(const Position& pos, OrganismType target
     
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            if (!tiles[y][x].isEmpty() && tiles[y][x].getOccupant().getType() == targetType) {
+            if (!tiles[y][x].isEmpty() && tiles[y][x].getOccupant()->getType() == targetType) {
                 double dx = pos.getX() - x;
                 double dy = pos.getY() - y;
                 double distance = std::sqrt(dx * dx + dy * dy);
                 
                 if (distance < closestDistance) {
                     closestDistance = distance;
-                    closestOrganism = &tiles[y][x].getOccupant();
+                    closestOrganism = tiles[y][x].getOccupant();
                 }
             }
         }

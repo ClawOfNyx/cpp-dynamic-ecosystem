@@ -1,9 +1,12 @@
 #include "TileImpl.h"
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
 
-TileImpl::TileImpl(const Position& pos) : position(pos), organism(nullptr) {}  
+TileImpl::TileImpl(const Position& pos) : position(pos), organism(nullptr) {
+    //cout << "Creating Tile at position (" << pos.getX() << ", " << pos.getY() << ")" << endl;
+}  
 
 TileImpl::~TileImpl() {}
 
@@ -11,27 +14,24 @@ bool TileImpl::isEmpty() const {
     return organism == nullptr;
 }
 
-Organism& TileImpl::getOccupant() const {
-    if (isEmpty()) {
-        throw runtime_error("Tile is empty, no occupant to return.");
-    }
-    return *organism;
+Organism* TileImpl::getOccupant() const {
+    return organism;
 }
 
 void TileImpl::setOccupant(const Organism& org) {
     if (organism != nullptr) {
-        throw runtime_error("Tile already has an occupant.");
+        cerr << "Warning: Tile at (" << position.getX() << ", " << position.getY() 
+             << ") already has an occupant" << endl;
+        return;
     }
-    //organism = new Organism(org);
+    organism = const_cast<Organism*>(&org);
+    cout << "Organism placed at (" << position.getX() << ", " << position.getY() << ")" << endl;
 }
+
 void TileImpl::clearOccupant() {
-    if (organism != nullptr) {
-        organism = nullptr;
-    }
+    organism = nullptr;
 }
 
 Position& TileImpl::getPosition() {
     return position;
 }
-
-    

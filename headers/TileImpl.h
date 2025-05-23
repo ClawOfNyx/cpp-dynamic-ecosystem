@@ -12,7 +12,7 @@ public:
     ~TileImpl();
 
     bool isEmpty() const;
-    Organism& getOccupant() const;
+    Organism* getOccupant() const;
     void setOccupant(const Organism& organism);
     void clearOccupant();
     Position& getPosition();

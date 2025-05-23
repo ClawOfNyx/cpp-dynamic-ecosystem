@@ -2,6 +2,7 @@
 #define GRID_IMPL_H
 #include <vector>
 #include "Tile.h"
+#include "Organism.h"
 
 class GridImpl {
 private:

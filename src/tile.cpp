@@ -13,7 +13,7 @@ Tile::~Tile() {
 bool Tile::isEmpty() const {
     return pImpl->isEmpty();
 }
-Organism& Tile::getOccupant() const {
+Organism* Tile::getOccupant() const {
     return pImpl->getOccupant();
 }
 void Tile::setOccupant(const Organism& organism) {
@@ -24,5 +24,5 @@ void Tile::clearOccupant() {
 }
 
 Position& Tile::getPosition() {
-    pImpl->getPosition();
+    return pImpl->getPosition();
 }
