@@ -19,6 +19,8 @@ public:
     Tile& findClosestEmptyTile(const Position& pos);
     Organism& findClosestOrganism(const Position& pos, OrganismType targetType) const;
     bool isInBounds(int x, int y) const;
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
 };
 
 #endif

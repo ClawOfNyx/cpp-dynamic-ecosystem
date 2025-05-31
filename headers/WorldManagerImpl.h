@@ -24,6 +24,8 @@ public:
     void removeOrganism(Organism* organism);
     void removeOrganism(int x, int y);
     void spawnPlantFromDeadOrganism(int x, int y, float nutrients);
+    const Grid& getGrid() const;
+    int getOrganismCount() const;
 };
 
 #endif

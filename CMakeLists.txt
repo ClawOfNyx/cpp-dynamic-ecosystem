@@ -17,4 +17,4 @@ include_directories(headers)
 
 add_executable(simulation ${SOURCES})
 target_compile_features(simulation PRIVATE cxx_std_17)
-target_link_libraries(simulation PRIVATE SFML::Graphics)
+target_link_libraries(simulation PRIVATE SFML::Graphics SFML::Window SFML::System)

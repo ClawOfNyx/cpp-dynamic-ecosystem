@@ -109,3 +109,11 @@ void WorldManagerImpl::spawnPlantFromDeadOrganism(int x, int y, float nutrients)
     
     addOrganism(newPlant, x, y);
 }
+
+const Grid& WorldManagerImpl::getGrid() const {
+    return *grid;
+}
+
+int WorldManagerImpl::getOrganismCount() const {
+    return organisms.size();
+}

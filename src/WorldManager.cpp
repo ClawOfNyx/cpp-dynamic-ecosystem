@@ -28,6 +28,10 @@ void WorldManager::addOrganism(Organism* organism, Position position) {
     pImpl->addOrganism(organism, position.getX(), position.getY());
 }
 
+void WorldManager::addOrganism(Organism* organism, int x, int y) {
+    pImpl->addOrganism(organism, x, y);
+}
+
 void WorldManager::removeOrganism(Organism* organism) {
     pImpl->removeOrganism(organism);
 }
@@ -40,3 +44,9 @@ void WorldManager::spawnPlantFromDeadOrganism(Position position, float nutrients
     pImpl->spawnPlantFromDeadOrganism(position.getX(), position.getY(), nutrients);
 }
 
+const Grid& WorldManager::getGrid() const {
+    return pImpl->getGrid();
+}
+int WorldManager::getOrganismCount() const {
+    return pImpl->getOrganismCount();
+}

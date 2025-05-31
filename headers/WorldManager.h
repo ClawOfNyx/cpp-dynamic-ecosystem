@@ -23,9 +23,12 @@ public:
     void update();
 
     void addOrganism(Organism* organism, Position position);
+    void addOrganism(Organism* organism, int x, int y);
     void removeOrganism(Organism* organism);
     void removeOrganism(Position position);
     void spawnPlantFromDeadOrganism(Position position, float nutrients);
+    const Grid& getGrid() const;
+    int getOrganismCount() const;
 
     WorldManager(const WorldManager&) = delete;
     WorldManager& operator=(const WorldManager&) = delete;
