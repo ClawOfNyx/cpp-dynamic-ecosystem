@@ -25,6 +25,8 @@ int main() {
         cout << "Plant created with nutrients: " << plant->getNutrients() << "\n";
         
         world.addOrganism(plant, 5,5);
+        cout << "Plant added to world" << endl;
+
         cout << "Creating Animal object\n";
         Animal* animal = new Animal(10.0f, 80, 2, 5, AnimalType::HERBIVORE, 1.0f, 15.0f, 5);
         cout << "Animal created with nutrients: " << animal->getNutrients() << "\n";
@@ -39,7 +41,7 @@ int main() {
                 "SFML window"
         );
         
-        const sf::Font font("arial.ttf");
+        const sf::Font font("fonts/arial.ttf");
         sf::Text text(font, "Hello SFML", 50);
 
         sf::Color plantColor = sf::Color::Green;
@@ -57,6 +59,8 @@ int main() {
                 }
         
                 window.clear();
+
+                world.update();
         
                 for (int y = 0; y < world.getGrid().getHeight(); ++y) {
                         for (int x = 0; x < world.getGrid().getWidth(); ++x) {
@@ -93,9 +97,9 @@ int main() {
 
                                 window.draw(rect);
                         }
-                        }
-        
+                }
                 window.display();
+                
         }
         cout << "Press Enter to exit...";
         //cin.ignore();

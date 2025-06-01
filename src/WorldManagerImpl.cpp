@@ -33,14 +33,14 @@ WorldManagerImpl::~WorldManagerImpl() {
 void WorldManagerImpl::update() {
     for (auto* organism : organisms) {
         if (organism->getType() == OrganismType::PLANT) {
-            organism->update();
+            organism->update(*grid);
         }
     }
 
     for (auto* organism : organisms) {
         if (auto* animal = dynamic_cast<Animal*>(organism)) {
             if (animal->getAnimalType() == AnimalType::HERBIVORE) {
-                organism->update();
+                organism->update(*grid);
             }
         }
     }
@@ -48,7 +48,7 @@ void WorldManagerImpl::update() {
     for (auto* organism : organisms) {
         if (auto* animal = dynamic_cast<Animal*>(organism)) {
             if (animal->getAnimalType() == AnimalType::CARNIVORE) {
-                organism->update();
+                organism->update(*grid);
             }
         }
     }
@@ -63,7 +63,9 @@ void WorldManagerImpl::addOrganism(Organism* organism, int x, int y) {
     if (!tile.isEmpty()) {
         throw std::runtime_error("Cannot add organism to an occupied tile");
     }
-
+    
+    Position newPos(x, y);
+    organism->setPosition(newPos);
     tile.setOccupant(*organism);
     
     organisms.push_back(organism);
