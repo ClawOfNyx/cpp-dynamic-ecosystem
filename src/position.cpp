@@ -7,6 +7,18 @@ Position::Position(int x, int y){
     pImpl = new PositionImpl(x, y);
 }
 
+Position::Position(const Position& other) {
+    pImpl = new PositionImpl(other.pImpl->getX(), other.pImpl->getY());
+}
+
+Position& Position::operator=(const Position& other) {
+    if (this != &other) {
+        delete pImpl;
+        pImpl = new PositionImpl(other.pImpl->getX(), other.pImpl->getY());
+    }
+    return *this;
+}
+
 Position::~Position(){
     delete pImpl;
 }

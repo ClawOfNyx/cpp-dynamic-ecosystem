@@ -3,7 +3,7 @@
 
 using namespace std;
 
-PositionImpl::PositionImpl(int X, int Y){
+PositionImpl::PositionImpl(int X, int Y) {
     if (X < 0 || Y < 0) {
         throw invalid_argument("Coordinates cannot be negative.");
     }

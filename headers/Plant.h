@@ -3,6 +3,8 @@
 
 #include "Organism.h"
 
+class Grid;
+
 class Plant : public Organism {
 private:
     float growthRate;
@@ -20,13 +22,14 @@ public:
     void setGrowthRate(float rate);
     void setNutrientAbsorptionRate(float rate);
     
-    void update() override;
+    void update(Grid& grid) override;
     bool isReadyToReproduce() const override;
     void consumeResources() override;
     
     Organism* reproduce() override;
 
     void absorbNutrients();
+    void trySpread(Grid& grid);
 };
 
 #endif

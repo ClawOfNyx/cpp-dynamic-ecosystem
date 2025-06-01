@@ -1,6 +1,10 @@
 #ifndef ORGANISM_H
 #define ORGANISM_H
 
+#include "Position.h"
+
+class Grid;
+
 enum class OrganismType {
     PLANT,
     ANIMAL
@@ -12,10 +16,11 @@ protected:
     float nutrients;
     int age;
     int maxLifespan;
+    Position* position;
 
 public:
     Organism(OrganismType type, float nutrients, int maxLifespan);
-    virtual ~Organism() = default;
+    virtual ~Organism();
 
     // Non-virtual methods 
     OrganismType getType() const;
@@ -26,8 +31,10 @@ public:
     void incrementAge();
     bool isDead() const;
     
-    // Pure virtual methods
-    virtual void update() = 0;
+    const Position& getPosition() const;
+    void setPosition(const Position& newPos);
+    
+    virtual void update(Grid& grid) = 0;
     virtual bool isReadyToReproduce() const = 0;
     virtual void consumeResources() = 0;
     
