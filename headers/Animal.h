@@ -3,6 +3,8 @@
 
 #include "Organism.h"
 
+class Grid;
+
 enum class AnimalType {
     HERBIVORE,
     CARNIVORE,
@@ -44,7 +46,7 @@ public:
     void setReproductionNutrientThreshold(float threshold);
     void setMass(int newMass);
 
-    void update() override;
+    void update(Grid& grid) override;
     bool isReadyToReproduce() const override;
     void consumeResources() override;
     
@@ -52,6 +54,14 @@ public:
 
     bool canEat(const Organism* food) const;
     void eat(Organism* food);
+    
+    void move(Grid& grid);
+    void hunt(Grid& grid);
+    void tryReproduce(Grid& grid);
+
+private:
+    Position findBestMovePosition(Grid& grid);
+    Organism* findNearestFood(Grid& grid);
 };
 
 #endif

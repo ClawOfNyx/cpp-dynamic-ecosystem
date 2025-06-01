@@ -1,6 +1,11 @@
 #include "Animal.h"
+#include "Grid.h"
+#include "Plant.h"
 #include <cstdlib>
 #include <ctime>
+#include <vector>
+#include <algorithm>
+#include <random>
 
 Animal::Animal(float nutrients, 
                int maxLifespan, 
@@ -18,59 +23,32 @@ Animal::Animal(float nutrients,
       reproductionNutrientThreshold(reproductionNutrientThreshold),
       mass(mass) {}
 
-// Getters
-int Animal::getMovementSpeed() const {
-    return movementSpeed;
-}
+// Getters and Setters remain the same...
+int Animal::getMovementSpeed() const { return movementSpeed; }
+int Animal::getVisionDistance() const { return visionDistance; }
+AnimalType Animal::getAnimalType() const { return animalType; }
+float Animal::getNutrientRequirement() const { return nutrientRequirement; }
+float Animal::getReproductionNutrientThreshold() const { return reproductionNutrientThreshold; }
+int Animal::getMass() const { return mass; }
 
-int Animal::getVisionDistance() const {
-    return visionDistance;
-}
+void Animal::setMovementSpeed(int speed) { movementSpeed = speed; }
+void Animal::setVisionDistance(int distance) { visionDistance = distance; }
+void Animal::setAnimalType(AnimalType type) { animalType = type; }
+void Animal::setNutrientRequirement(float requirement) { nutrientRequirement = requirement; }
+void Animal::setReproductionNutrientThreshold(float threshold) { reproductionNutrientThreshold = threshold; }
+void Animal::setMass(int newMass) { mass = newMass; }
 
-AnimalType Animal::getAnimalType() const {
-    return animalType;
-}
-
-float Animal::getNutrientRequirement() const {
-    return nutrientRequirement;
-}
-
-float Animal::getReproductionNutrientThreshold() const {
-    return reproductionNutrientThreshold;
-}
-
-int Animal::getMass() const {
-    return mass;
-}
-
-// Setters
-void Animal::setMovementSpeed(int speed) {
-    movementSpeed = speed;
-}
-
-void Animal::setVisionDistance(int distance) {
-    visionDistance = distance;
-}
-
-void Animal::setAnimalType(AnimalType type) {
-    animalType = type;
-}
-
-void Animal::setNutrientRequirement(float requirement) {
-    nutrientRequirement = requirement;
-}
-
-void Animal::setReproductionNutrientThreshold(float threshold) {
-    reproductionNutrientThreshold = threshold;
-}
-
-void Animal::setMass(int newMass) {
-    mass = newMass;
-}
-
-void Animal::update() {
+void Animal::update(Grid& grid) {
     consumeResources();
     incrementAge();
+    
+    // Perform animal behaviors
+    hunt(grid);           // Look for food and eat
+    move(grid);           // Move towards food or randomly
+    
+    if (isReadyToReproduce()) {
+        tryReproduce(grid);
+    }
 }
 
 bool Animal::isReadyToReproduce() const {
@@ -122,5 +100,146 @@ void Animal::eat(Organism* food) {
     
     float foodNutrients = food->getNutrients();
     addNutrients(foodNutrients);
+}
+
+void Animal::move(Grid& grid) {
+    Position newPos = findBestMovePosition(grid);
     
+    // Clear current tile
+    Tile& currentTile = grid.getTile(position->getX(), position->getY());
+    currentTile.clearOccupant();
+    
+    // Move to new position
+    setPosition(newPos);
+    
+    // Occupy new tile
+    Tile& newTile = grid.getTile(newPos.getX(), newPos.getY());
+    newTile.setOccupant(*this);
+}
+
+void Animal::hunt(Grid& grid) {
+    Organism* nearestFood = findNearestFood(grid);
+    
+    if (nearestFood) {
+        int distance = position->distanceToPoint(nearestFood->getPosition());
+        
+        // If food is adjacent, eat it
+        if (distance <= 1) {
+            eat(nearestFood);
+            
+            // Remove eaten organism from grid
+            Tile& foodTile = grid.getTile(nearestFood->getPosition().getX(), 
+                                        nearestFood->getPosition().getY());
+            foodTile.clearOccupant();
+            // Note: You'll need to remove from WorldManager's organism list too
+        }
+    }
+}
+
+void Animal::tryReproduce(Grid& grid) {
+    std::vector<Position> adjacentPositions = position->getAdjacentPositions();
+    std::vector<Position> validPositions;
+    
+    // Find empty adjacent positions
+    for (const auto& pos : adjacentPositions) {
+        if (grid.isInBounds(pos.getX(), pos.getY())) {
+            Tile& tile = grid.getTile(pos.getX(), pos.getY());
+            if (tile.isEmpty()) {
+                validPositions.push_back(pos);
+            }
+        }
+    }
+    
+    // If we have valid positions, create offspring
+    if (!validPositions.empty()) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, validPositions.size() - 1);
+        
+        Position birthPos = validPositions[dis(gen)];
+        Animal* offspring = dynamic_cast<Animal*>(reproduce());
+        
+        if (offspring) {
+            offspring->setPosition(birthPos);
+            Tile& targetTile = grid.getTile(birthPos.getX(), birthPos.getY());
+            targetTile.setOccupant(*offspring);
+            
+            // Note: You'll need to add this offspring to WorldManager's organism list
+        }
+    }
+}
+
+Position Animal::findBestMovePosition(Grid& grid) {
+    std::vector<Position> adjacentPositions = position->getAdjacentPositions();
+    std::vector<Position> validPositions;
+    
+    // Filter for valid, empty positions
+    for (const auto& pos : adjacentPositions) {
+        if (grid.isInBounds(pos.getX(), pos.getY())) {
+            Tile& tile = grid.getTile(pos.getX(), pos.getY());
+            if (tile.isEmpty()) {
+                validPositions.push_back(pos);
+            }
+        }
+    }
+    
+    if (validPositions.empty()) {
+        return *position; // Stay in place if no valid moves
+    }
+    
+    // Try to move towards food
+    Organism* nearestFood = findNearestFood(grid);
+    if (nearestFood) {
+        Position foodPos = nearestFood->getPosition();
+        
+        // Find the position that gets us closest to food
+        Position bestPos = validPositions[0];
+        int shortestDistance = bestPos.distanceToPoint(foodPos);
+        
+        for (const auto& pos : validPositions) {
+            int distance = pos.distanceToPoint(foodPos);
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                bestPos = pos;
+            }
+        }
+        
+        return bestPos;
+    }
+    
+    // Random movement if no food found
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, validPositions.size() - 1);
+    
+    return validPositions[dis(gen)];
+}
+
+Organism* Animal::findNearestFood(Grid& grid) {
+    Organism* nearestFood = nullptr;
+    int shortestDistance = visionDistance + 1;
+    
+    // Search within vision distance
+    for (int dy = -visionDistance; dy <= visionDistance; ++dy) {
+        for (int dx = -visionDistance; dx <= visionDistance; ++dx) {
+            int checkX = position->getX() + dx;
+            int checkY = position->getY() + dy;
+            
+            if (grid.isInBounds(checkX, checkY)) {
+                Tile& tile = grid.getTile(checkX, checkY);
+                if (!tile.isEmpty()) {
+                    Organism* organism = tile.getOccupant();
+                    if (canEat(organism)) {
+                        int distance = position->distanceToPoint(organism->getPosition());
+                        if (distance < shortestDistance) {
+                            shortestDistance = distance;
+                            nearestFood = organism;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return nearestFood;
 }
