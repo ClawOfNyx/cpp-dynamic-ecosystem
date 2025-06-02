@@ -117,30 +117,44 @@ int WorldManagerImpl::getOrganismCount() const {
 }
 
 void WorldManagerImpl::removeDeadOrganisms() {
+    std::vector<std::pair<Position, float>> plantsToSpawn;
+    
     auto it = organisms.begin();
     while (it != organisms.end()) {
         Organism* organism = *it;
         if (!organism || organism->isDead()) {
             if (organism) {
-                // Clear from grid
                 Position pos = organism->getPosition();
+                float nutrients = organism->getNutrients() * 0.5f;
+                plantsToSpawn.emplace_back(pos, nutrients);
+                
                 if (grid->isInBounds(pos.getX(), pos.getY())) {
                     Tile& tile = grid->getTile(pos.getX(), pos.getY());
                     if (!tile.isEmpty() && tile.getOccupant() == organism) {
                         tile.clearOccupant();
                     }
-                    
-                    // Spawn plant from dead organism
-                    spawnPlantFromDeadOrganism(pos.getX(), pos.getY(), organism->getNutrients() * 0.5f);
                 }
                 
                 delete organism;
             }
             
-            // Remove from vector
             it = organisms.erase(it);
         } else {
             ++it;
+        }
+    }
+    
+    for (const auto& plantData : plantsToSpawn) {
+        const Position& pos = plantData.first;
+        float nutrients = plantData.second;
+        
+        if (grid->isInBounds(pos.getX(), pos.getY())) {
+            Tile& tile = grid->getTile(pos.getX(), pos.getY());
+            if (tile.isEmpty()) {
+                Plant* newPlant = new Plant(nutrients, 100, 0.5f, 0.3f);
+                addOrganism(newPlant, pos.getX(), pos.getY());
+                std::cout << "Plant spawned from dead organism at (" << pos.getX() << ", " << pos.getY() << ")" << std::endl;
+            }
         }
     }
 }
