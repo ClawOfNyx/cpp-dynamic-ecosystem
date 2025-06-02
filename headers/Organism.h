@@ -4,6 +4,7 @@
 #include "Position.h"
 
 class Grid;
+class WorldManager;
 
 enum class OrganismType {
     PLANT,
@@ -34,7 +35,7 @@ public:
     const Position& getPosition() const;
     void setPosition(const Position& newPos);
     
-    virtual void update(Grid& grid) = 0;
+    virtual void update(Grid& grid, WorldManager& worldManager) = 0;
     virtual bool isReadyToReproduce() const = 0;
     virtual void consumeResources() = 0;
     

@@ -1,11 +1,13 @@
 #include "Animal.h"
 #include "Grid.h"
 #include "Plant.h"
+#include "WorldManager.h"  // ADD THIS LINE
 #include <cstdlib>
 #include <ctime>
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <iostream>
 
 Animal::Animal(float nutrients, 
                int maxLifespan, 
@@ -38,16 +40,15 @@ void Animal::setNutrientRequirement(float requirement) { nutrientRequirement = r
 void Animal::setReproductionNutrientThreshold(float threshold) { reproductionNutrientThreshold = threshold; }
 void Animal::setMass(int newMass) { mass = newMass; }
 
-void Animal::update(Grid& grid) {
+void Animal::update(Grid& grid, WorldManager& worldManager) {
     consumeResources();
     incrementAge();
     
-    // Perform animal behaviors
-    hunt(grid);           // Look for food and eat
-    move(grid);           // Move towards food or randomly
+    hunt(grid, worldManager);     
+    move(grid);           
     
     if (isReadyToReproduce()) {
-        tryReproduce(grid);
+        tryReproduce(grid, worldManager);
     }
 }
 
@@ -117,7 +118,7 @@ void Animal::move(Grid& grid) {
     newTile.setOccupant(*this);
 }
 
-void Animal::hunt(Grid& grid) {
+void Animal::hunt(Grid& grid, WorldManager& worldManager) {
     Organism* nearestFood = findNearestFood(grid);
     
     if (nearestFood) {
@@ -127,44 +128,9 @@ void Animal::hunt(Grid& grid) {
         if (distance <= 1) {
             eat(nearestFood);
             
-            // Remove eaten organism from grid
-            Tile& foodTile = grid.getTile(nearestFood->getPosition().getX(), 
-                                        nearestFood->getPosition().getY());
-            foodTile.clearOccupant();
-            // Note: You'll need to remove from WorldManager's organism list too
-        }
-    }
-}
-
-void Animal::tryReproduce(Grid& grid) {
-    std::vector<Position> adjacentPositions = position->getAdjacentPositions();
-    std::vector<Position> validPositions;
-    
-    // Find empty adjacent positions
-    for (const auto& pos : adjacentPositions) {
-        if (grid.isInBounds(pos.getX(), pos.getY())) {
-            Tile& tile = grid.getTile(pos.getX(), pos.getY());
-            if (tile.isEmpty()) {
-                validPositions.push_back(pos);
-            }
-        }
-    }
-    
-    // If we have valid positions, create offspring
-    if (!validPositions.empty()) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, validPositions.size() - 1);
-        
-        Position birthPos = validPositions[dis(gen)];
-        Animal* offspring = dynamic_cast<Animal*>(reproduce());
-        
-        if (offspring) {
-            offspring->setPosition(birthPos);
-            Tile& targetTile = grid.getTile(birthPos.getX(), birthPos.getY());
-            targetTile.setOccupant(*offspring);
-            
-            // Note: You'll need to add this offspring to WorldManager's organism list
+            // Remove eaten organism from grid and world manager
+            Position foodPos = nearestFood->getPosition();
+            worldManager.removeOrganism(foodPos);
         }
     }
 }
@@ -173,7 +139,7 @@ Position Animal::findBestMovePosition(Grid& grid) {
     std::vector<Position> adjacentPositions = position->getAdjacentPositions();
     std::vector<Position> validPositions;
     
-    // Filter for valid, empty positions
+    // Filter for positions that are within bounds AND empty
     for (const auto& pos : adjacentPositions) {
         if (grid.isInBounds(pos.getX(), pos.getY())) {
             Tile& tile = grid.getTile(pos.getX(), pos.getY());
@@ -213,6 +179,38 @@ Position Animal::findBestMovePosition(Grid& grid) {
     std::uniform_int_distribution<> dis(0, validPositions.size() - 1);
     
     return validPositions[dis(gen)];
+}
+
+void Animal::tryReproduce(Grid& grid, WorldManager& worldManager) {
+    if (!isReadyToReproduce()) {
+        return; // Early exit if not ready
+    }
+    
+    std::vector<Position> adjacentPositions = position->getAdjacentPositions();
+    std::vector<Position> validPositions;
+    
+    for (const auto& pos : adjacentPositions) {
+        if (grid.isInBounds(pos.getX(), pos.getY())) {
+            Tile& tile = grid.getTile(pos.getX(), pos.getY());
+            if (tile.isEmpty()) {
+                validPositions.push_back(pos);
+            }
+        }
+    }
+    
+    if (!validPositions.empty()) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, validPositions.size() - 1);
+        
+        Position birthPos = validPositions[dis(gen)];
+        Animal* offspring = dynamic_cast<Animal*>(reproduce());
+        
+        if (offspring) {
+            worldManager.addOrganism(offspring, birthPos);
+            std::cout << "Animal reproduced at (" << birthPos.getX() << ", " << birthPos.getY() << ")" << std::endl;
+        }
+    }
 }
 
 Organism* Animal::findNearestFood(Grid& grid) {

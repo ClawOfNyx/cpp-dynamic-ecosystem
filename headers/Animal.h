@@ -46,7 +46,7 @@ public:
     void setReproductionNutrientThreshold(float threshold);
     void setMass(int newMass);
 
-    void update(Grid& grid) override;
+    void update(Grid& grid, WorldManager& worldManager) override;
     bool isReadyToReproduce() const override;
     void consumeResources() override;
     
@@ -56,8 +56,8 @@ public:
     void eat(Organism* food);
     
     void move(Grid& grid);
-    void hunt(Grid& grid);
-    void tryReproduce(Grid& grid);
+    void hunt(Grid& grid, WorldManager& worldManager);
+    void tryReproduce(Grid& grid, WorldManager& worldManager);
 
 private:
     Position findBestMovePosition(Grid& grid);

@@ -21,7 +21,7 @@ WorldManager& WorldManager::getInstance(int width, int height, float baseNutrien
 }
 
 void WorldManager::update() {
-    pImpl->update();
+    pImpl->update(*this);
 }
 
 void WorldManager::addOrganism(Organism* organism, Position position) {

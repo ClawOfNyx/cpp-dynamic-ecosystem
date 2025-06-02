@@ -1,115 +1,111 @@
 #include "WorldManagerImpl.h"
-#include <stdexcept>
+#include "WorldManager.h"
 #include <algorithm>
-#include <cmath>
-#include <random>
-#include <chrono>
 #include <iostream>
 
-using namespace std;
-
-WorldManagerImpl::WorldManagerImpl(int width, int height, float nutrients) 
-    : grid(nullptr),
-      organisms(),
-      baseNutrientGenerationRate(nutrients) {
-    
-    cout << "Creating Grid with dimensions: " << width << "x" << height << "..." << endl;
+WorldManagerImpl::WorldManagerImpl(int width, int height, float nutrients)
+    : baseNutrientGenerationRate(nutrients) {
     grid = new Grid(width, height);
-    cout << "Grid created successfully" << endl;
-    
-    cout << "Grid initialization completed" << endl;
-
 }
 
 WorldManagerImpl::~WorldManagerImpl() {
-    for (auto organism : organisms) {
+    // Clean up all organisms
+    for (Organism* organism : organisms) {
         delete organism;
     }
     organisms.clear();
-
+    
     delete grid;
 }
 
-void WorldManagerImpl::update() {
-    for (auto* organism : organisms) {
-        if (organism->getType() == OrganismType::PLANT) {
-            organism->update(*grid);
-        }
-    }
-
-    for (auto* organism : organisms) {
-        if (auto* animal = dynamic_cast<Animal*>(organism)) {
-            if (animal->getAnimalType() == AnimalType::HERBIVORE) {
-                organism->update(*grid);
+void WorldManagerImpl::update(WorldManager& worldManager) {
+    std::cout << "Updating " << organisms.size() << " organisms" << std::endl;
+    
+    std::vector<bool> shouldUpdate(organisms.size(), true);
+    
+    for (size_t i = 0; i < organisms.size() && i < shouldUpdate.size(); ++i) {
+        if (shouldUpdate[i] && organisms[i] != nullptr && !organisms[i]->isDead()) {
+            // Check if organism is still at the same index (not moved due to removals)
+            if (i < organisms.size() && organisms[i] != nullptr) {
+                organisms[i]->update(*grid, worldManager);
             }
         }
     }
-
-    for (auto* organism : organisms) {
-        if (auto* animal = dynamic_cast<Animal*>(organism)) {
-            if (animal->getAnimalType() == AnimalType::CARNIVORE) {
-                organism->update(*grid);
-            }
-        }
-    }
+    
+    removeDeadOrganisms();
 }
 
 void WorldManagerImpl::addOrganism(Organism* organism, int x, int y) {
-    if (!grid->isInBounds(x, y)) {
-        throw std::out_of_range("Cannot add organism outside grid boundaries");
+    if (!organism) {
+        std::cout << "Warning: Attempted to add null organism" << std::endl;
+        return;
     }
     
-    Tile& tile = grid->getTile(x, y);
-    if (!tile.isEmpty()) {
-        throw std::runtime_error("Cannot add organism to an occupied tile");
-    }
-    
-    Position newPos(x, y);
-    organism->setPosition(newPos);
-    tile.setOccupant(*organism);
-    
-    organisms.push_back(organism);
-}
-
-void WorldManagerImpl::removeOrganism(Organism* organism) {
-    //Tile& tile = organism->getTile();
-    //tile.clearOccupant();
-    delete organism; 
-}
-
-void WorldManagerImpl::removeOrganism(int x, int y) {
-    Tile& tile = grid->getTile(x,y);
-    Organism* organism = tile.getOccupant();
-    tile.clearOccupant();
-    delete organism;
-}
-
-void WorldManagerImpl::spawnPlantFromDeadOrganism(int x, int y, float nutrients) {
     if (!grid->isInBounds(x, y)) {
+        std::cout << "Warning: Attempted to add organism out of bounds at (" << x << ", " << y << ")" << std::endl;
+        delete organism; // Clean up the organism since we can't place it
         return;
     }
     
     Tile& tile = grid->getTile(x, y);
     if (!tile.isEmpty()) {
-        Position pos(x, y);
-        Tile& emptyTile = grid->findClosestEmptyTile(pos);
-        x = emptyTile.getPosition().getX();
-        y = emptyTile.getPosition().getY();
+        std::cout << "Cannot add organism - tile occupied at (" << x << ", " << y << ")" << std::endl;
+        delete organism; // Clean up the organism since we can't place it
+        return;
     }
     
-    float growthRateFactor = std::min(1.0f, nutrients / 20.0f);
-    int plantLifespan = 100 + static_cast<int>(nutrients * 5);
-    float growthRate = 0.5f + growthRateFactor;
-    float absorptionRate = 0.3f + (growthRateFactor * 0.7f);
+    // Only set position and add to organisms vector if we can successfully place it
+    Position pos(x, y);
+    organism->setPosition(pos);
     
-    Plant* newPlant = new Plant(
-        nutrients,
-        plantLifespan,
-        growthRate,
-        absorptionRate
-    );
+    try {
+        tile.setOccupant(*organism);
+        organisms.push_back(organism); // Only add to vector if tile placement succeeds
+        std::cout << "Added organism to (" << x << ", " << y << ")" << std::endl;
+    } catch (const std::runtime_error& e) {
+        std::cout << "Failed to place organism: " << e.what() << std::endl;
+        delete organism; // Clean up if placement fails
+    }
+}
+
+void WorldManagerImpl::removeOrganism(Organism* organism) {
+    if (!organism) return;
     
-    addOrganism(newPlant, x, y);
+    // Find and remove from organisms vector first
+    auto it = std::find(organisms.begin(), organisms.end(), organism);
+    if (it != organisms.end()) {
+        organisms.erase(it);
+        
+        // Clear from grid
+        Position pos = organism->getPosition();
+        if (grid->isInBounds(pos.getX(), pos.getY())) {
+            Tile& tile = grid->getTile(pos.getX(), pos.getY());
+            if (!tile.isEmpty() && tile.getOccupant() == organism) {
+                tile.clearOccupant();
+            }
+        }
+        
+        delete organism;
+    }
+}
+void WorldManagerImpl::removeOrganism(int x, int y) {
+    if (grid->isInBounds(x, y)) {
+        Tile& tile = grid->getTile(x, y);
+        if (!tile.isEmpty()) {
+            Organism* organism = tile.getOccupant();
+            removeOrganism(organism);
+        }
+    }
+}
+
+void WorldManagerImpl::spawnPlantFromDeadOrganism(int x, int y, float nutrients) {
+    if (grid->isInBounds(x, y)) {
+        Tile& tile = grid->getTile(x, y);
+        if (tile.isEmpty()) {
+            Plant* newPlant = new Plant(nutrients, 100, 0.5f, 0.3f);
+            addOrganism(newPlant, x, y);
+        }
+    }
 }
 
 const Grid& WorldManagerImpl::getGrid() const {
@@ -118,4 +114,33 @@ const Grid& WorldManagerImpl::getGrid() const {
 
 int WorldManagerImpl::getOrganismCount() const {
     return organisms.size();
+}
+
+void WorldManagerImpl::removeDeadOrganisms() {
+    auto it = organisms.begin();
+    while (it != organisms.end()) {
+        Organism* organism = *it;
+        if (!organism || organism->isDead()) {
+            if (organism) {
+                // Clear from grid
+                Position pos = organism->getPosition();
+                if (grid->isInBounds(pos.getX(), pos.getY())) {
+                    Tile& tile = grid->getTile(pos.getX(), pos.getY());
+                    if (!tile.isEmpty() && tile.getOccupant() == organism) {
+                        tile.clearOccupant();
+                    }
+                    
+                    // Spawn plant from dead organism
+                    spawnPlantFromDeadOrganism(pos.getX(), pos.getY(), organism->getNutrients() * 0.5f);
+                }
+                
+                delete organism;
+            }
+            
+            // Remove from vector
+            it = organisms.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }

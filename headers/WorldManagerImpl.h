@@ -18,7 +18,7 @@ public:
     WorldManagerImpl(int width, int height, float nutrients);
     ~WorldManagerImpl();
 
-    void update();
+    void update(WorldManager& worldManager);
 
     void addOrganism(Organism* organism, int x, int y);
     void removeOrganism(Organism* organism);
@@ -26,6 +26,7 @@ public:
     void spawnPlantFromDeadOrganism(int x, int y, float nutrients);
     const Grid& getGrid() const;
     int getOrganismCount() const;
+    void removeDeadOrganisms();
 };
 
 #endif

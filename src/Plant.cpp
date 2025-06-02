@@ -1,7 +1,9 @@
 #include "Plant.h"
 #include "Grid.h"
+#include "WorldManager.h"  // ADD THIS LINE
 #include <random>
 #include <vector>
+#include <iostream>
 
 Plant::Plant(float nutrients, int maxLifespan, float growthRate, float nutrientAbsorptionRate)
     : Organism(OrganismType::PLANT, nutrients, maxLifespan),
@@ -25,13 +27,13 @@ void Plant::setNutrientAbsorptionRate(float rate) {
     nutrientAbsorptionRate = rate;
 }
 
-void Plant::update(Grid& grid) {
+void Plant::update(Grid& grid, WorldManager& worldManager) {
     absorbNutrients();
     incrementAge();
     
     // Try to spread if ready to reproduce
     if (isReadyToReproduce()) {
-        trySpread(grid);
+        trySpread(grid, worldManager);
     }
 }
 
@@ -61,12 +63,14 @@ void Plant::absorbNutrients() {
     addNutrients(nutrientAbsorptionRate * growthRate);
 }
 
-void Plant::trySpread(Grid& grid) {
-    // Get adjacent positions
+void Plant::trySpread(Grid& grid, WorldManager& worldManager) {
+    if (!isReadyToReproduce()) {
+        return; // Early exit if not ready
+    }
+    
     std::vector<Position> adjacentPositions = position->getAdjacentPositions();
     std::vector<Position> validPositions;
     
-    // Filter for valid, empty positions
     for (const auto& pos : adjacentPositions) {
         if (grid.isInBounds(pos.getX(), pos.getY())) {
             Tile& tile = grid.getTile(pos.getX(), pos.getY());
@@ -76,7 +80,6 @@ void Plant::trySpread(Grid& grid) {
         }
     }
     
-    // If we have valid positions, create offspring
     if (!validPositions.empty()) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -86,12 +89,8 @@ void Plant::trySpread(Grid& grid) {
         Plant* offspring = dynamic_cast<Plant*>(reproduce());
         
         if (offspring) {
-            offspring->setPosition(spreadPos);
-            Tile& targetTile = grid.getTile(spreadPos.getX(), spreadPos.getY());
-            targetTile.setOccupant(*offspring);
-            
-            // Note: This creates offspring but doesn't add to organism list
-            // WorldManager needs to handle this during its update cycle
+            worldManager.addOrganism(offspring, spreadPos);
+            std::cout << "Plant spread to (" << spreadPos.getX() << ", " << spreadPos.getY() << ")" << std::endl;
         }
     }
 }

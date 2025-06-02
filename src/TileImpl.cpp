@@ -20,9 +20,9 @@ Organism* TileImpl::getOccupant() const {
 
 void TileImpl::setOccupant(const Organism& org) {
     if (organism != nullptr) {
-        cerr << "Warning: Tile at (" << position.getX() << ", " << position.getY() 
-             << ") already has an occupant" << endl;
-        return;
+        cerr << "Error: Tile at (" << position.getX() << ", " << position.getY() 
+             << ") already has an occupant. Cannot place new organism." << endl;
+        throw std::runtime_error("Attempt to place organism on occupied tile");
     }
     organism = const_cast<Organism*>(&org);
     cout << "Organism placed at (" << position.getX() << ", " << position.getY() << ")" << endl;

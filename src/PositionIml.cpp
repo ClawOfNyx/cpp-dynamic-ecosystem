@@ -4,14 +4,11 @@
 using namespace std;
 
 PositionImpl::PositionImpl(int X, int Y) {
-    if (X < 0 || Y < 0) {
-        throw invalid_argument("Coordinates cannot be negative.");
-    }
-    else {
-        x = X;
-        y = Y;
-    }
+    // Remove the negative coordinate check since we might need to handle them
+    x = X;
+    y = Y;
 }
+
 PositionImpl::~PositionImpl() {}
 
 int PositionImpl::distanceToPoint(const PositionImpl& other){
@@ -19,14 +16,24 @@ int PositionImpl::distanceToPoint(const PositionImpl& other){
 }
 
 std::vector<PositionImpl> PositionImpl::getAdjacentPositions(){
-    return std::vector<PositionImpl>{
-        PositionImpl(x - 1, y),
-        PositionImpl(x + 1, y),
-        PositionImpl(x, y - 1),
-        PositionImpl(x, y + 1),
-        PositionImpl(x - 1, y - 1),
-        PositionImpl(x - 1, y + 1),
-        PositionImpl(x + 1, y + 1),
-        PositionImpl(x + 1, y - 1)
+    std::vector<PositionImpl> validPositions;
+    
+    // All 8 possible adjacent positions
+    std::vector<std::pair<int, int>> offsets = {
+        {-1, -1}, {-1, 0}, {-1, 1},
+        { 0, -1},          { 0, 1},
+        { 1, -1}, { 1, 0}, { 1, 1}
     };
+    
+    for (const auto& offset : offsets) {
+        int newX = x + offset.first;
+        int newY = y + offset.second;
+        
+        // Only add positions that are non-negative
+        if (newX >= 0 && newY >= 0) {
+            validPositions.emplace_back(newX, newY);
+        }
+    }
+    
+    return validPositions;
 }

@@ -22,14 +22,14 @@ public:
     void setGrowthRate(float rate);
     void setNutrientAbsorptionRate(float rate);
     
-    void update(Grid& grid) override;
+    void update(Grid& grid, WorldManager& worldManager) override;
     bool isReadyToReproduce() const override;
     void consumeResources() override;
     
     Organism* reproduce() override;
 
     void absorbNutrients();
-    void trySpread(Grid& grid);
+    void trySpread(Grid& grid, WorldManager& worldManager);
 };
 
 #endif
