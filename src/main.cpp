@@ -54,7 +54,7 @@ int main() {
     }
 
     cout << "Creating Animal object\n";
-    Animal* animal = new Animal(10.0f, 80, 2, 5, AnimalType::HERBIVORE, 1.0f, 15.0f, 5);
+    Animal* animal = new Animal(10.0f, 80, 2, 5, AnimalType::HERBIVORE, 1.0f, 20.0f, 5);
     cout << "Animal created with nutrients: " << animal->getNutrients() << "\n";
 
     // Find empty spot for animal

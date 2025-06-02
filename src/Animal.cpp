@@ -44,12 +44,33 @@ void Animal::update(Grid& grid, WorldManager& worldManager) {
     consumeResources();
     incrementAge();
     
-    hunt(grid, worldManager);     
-    move(grid);           
-    
     if (isReadyToReproduce()) {
-        tryReproduce(grid, worldManager);
+        std::vector<Position> adjacentPositions = position->getAdjacentPositions();
+        bool canReproduce = false;
+        
+        for (const auto& pos : adjacentPositions) {
+            if (grid.isInBounds(pos.getX(), pos.getY())) {
+                Tile& tile = grid.getTile(pos.getX(), pos.getY());
+                if (tile.isEmpty()) {
+                    canReproduce = true;
+                    break;
+                }
+            }
+        }
+        
+        if (canReproduce) {
+            tryReproduce(grid, worldManager);
+            return; 
+        }
     }
+    
+    Organism* adjacentFood = findAdjacentFood(grid);
+    if (adjacentFood) {
+        hunt(grid, worldManager); 
+        return; 
+    }
+    
+    move(grid);
 }
 
 bool Animal::isReadyToReproduce() const {
@@ -240,4 +261,22 @@ Organism* Animal::findNearestFood(Grid& grid) {
     }
     
     return nearestFood;
+}
+
+Organism* Animal::findAdjacentFood(Grid& grid) {
+    std::vector<Position> adjacentPositions = position->getAdjacentPositions();
+    
+    for (const auto& pos : adjacentPositions) {
+        if (grid.isInBounds(pos.getX(), pos.getY())) {
+            Tile& tile = grid.getTile(pos.getX(), pos.getY());
+            if (!tile.isEmpty()) {
+                Organism* organism = tile.getOccupant();
+                if (canEat(organism)) {
+                    return organism;
+                }
+            }
+        }
+    }
+    
+    return nullptr;
 }

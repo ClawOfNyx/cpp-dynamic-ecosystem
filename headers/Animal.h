@@ -62,6 +62,7 @@ public:
 private:
     Position findBestMovePosition(Grid& grid);
     Organism* findNearestFood(Grid& grid);
+    Organism* findAdjacentFood(Grid& grid);
 };
 
 #endif

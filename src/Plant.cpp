@@ -28,16 +28,32 @@ void Plant::setNutrientAbsorptionRate(float rate) {
 }
 
 void Plant::update(Grid& grid, WorldManager& worldManager) {
-    absorbNutrients();
     incrementAge();
     
     std::cout << "Plant at (" << position->getX() << ", " << position->getY() 
               << ") has " << nutrients << " nutrients (threshold: " << spreadingThreshold << ")" << std::endl;
     
     if (isReadyToReproduce()) {
-        std::cout << "Plant is ready to reproduce!" << std::endl;
-        trySpread(grid, worldManager);
+        std::vector<Position> adjacentPositions = position->getAdjacentPositions();
+        bool canSpread = false;
+        
+        for (const auto& pos : adjacentPositions) {
+            if (grid.isInBounds(pos.getX(), pos.getY())) {
+                Tile& tile = grid.getTile(pos.getX(), pos.getY());
+                if (tile.isEmpty()) {
+                    canSpread = true;
+                    break;
+                }
+            }
+        }
+        
+        if (canSpread) {
+            std::cout << "Plant is ready to reproduce!" << std::endl;
+            trySpread(grid, worldManager);
+            return; 
+        }
     }
+    absorbNutrients();
 }
 
 bool Plant::isReadyToReproduce() const {

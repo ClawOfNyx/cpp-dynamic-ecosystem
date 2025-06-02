@@ -103,7 +103,7 @@ void WorldManagerImpl::spawnPlantFromDeadOrganism(int x, int y, float nutrients)
     if (grid->isInBounds(x, y)) {
         Tile& tile = grid->getTile(x, y);
         if (tile.isEmpty()) {
-            float plantNutrients = std::max(nutrients, 6.0f); 
+            float plantNutrients = std::max(nutrients / 2, 4.0f); 
             Plant* newPlant = new Plant(plantNutrients, 100, 0.8f, 0.6f);
             addOrganism(newPlant, x, y);
             std::cout << "Plant spawned from dead organism with " << plantNutrients << " nutrients" << std::endl;
