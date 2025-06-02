@@ -88,6 +88,7 @@ void WorldManagerImpl::removeOrganism(Organism* organism) {
         delete organism;
     }
 }
+
 void WorldManagerImpl::removeOrganism(int x, int y) {
     if (grid->isInBounds(x, y)) {
         Tile& tile = grid->getTile(x, y);
@@ -102,8 +103,10 @@ void WorldManagerImpl::spawnPlantFromDeadOrganism(int x, int y, float nutrients)
     if (grid->isInBounds(x, y)) {
         Tile& tile = grid->getTile(x, y);
         if (tile.isEmpty()) {
-            Plant* newPlant = new Plant(nutrients, 100, 0.5f, 0.3f);
+            float plantNutrients = std::max(nutrients, 6.0f); 
+            Plant* newPlant = new Plant(plantNutrients, 100, 0.8f, 0.6f);
             addOrganism(newPlant, x, y);
+            std::cout << "Plant spawned from dead organism with " << plantNutrients << " nutrients" << std::endl;
         }
     }
 }
@@ -125,9 +128,16 @@ void WorldManagerImpl::removeDeadOrganisms() {
         if (!organism || organism->isDead()) {
             if (organism) {
                 Position pos = organism->getPosition();
-                float nutrients = organism->getNutrients() * 0.5f;
-                plantsToSpawn.emplace_back(pos, nutrients);
+                float nutrients = organism->getNutrients();
                 
+                std::cout << "Organism died at (" << pos.getX() << ", " << pos.getY() 
+                         << ") with " << nutrients << " nutrients" << std::endl;
+                
+                // Give more nutrients to spawned plants and ensure minimum threshold
+                float plantNutrients = std::max(nutrients * 0.8f, 12.0f); // 80% of nutrients, minimum 12
+                plantsToSpawn.emplace_back(pos, plantNutrients);
+                
+                // Clear from grid
                 if (grid->isInBounds(pos.getX(), pos.getY())) {
                     Tile& tile = grid->getTile(pos.getX(), pos.getY());
                     if (!tile.isEmpty() && tile.getOccupant() == organism) {
@@ -144,6 +154,7 @@ void WorldManagerImpl::removeDeadOrganisms() {
         }
     }
     
+    // Spawn plants from dead organisms
     for (const auto& plantData : plantsToSpawn) {
         const Position& pos = plantData.first;
         float nutrients = plantData.second;
@@ -151,9 +162,16 @@ void WorldManagerImpl::removeDeadOrganisms() {
         if (grid->isInBounds(pos.getX(), pos.getY())) {
             Tile& tile = grid->getTile(pos.getX(), pos.getY());
             if (tile.isEmpty()) {
-                Plant* newPlant = new Plant(nutrients, 100, 0.5f, 0.3f);
+                // Create plants with better stats specifically for decomposition plants
+                Plant* newPlant = new Plant(
+                    nutrients,           // Use the calculated nutrients (minimum 12)
+                    120,                // Longer lifespan 
+                    1.0f,               // Higher growth rate
+                    0.8f                // Higher absorption rate
+                );
                 addOrganism(newPlant, pos.getX(), pos.getY());
-                std::cout << "Plant spawned from dead organism at (" << pos.getX() << ", " << pos.getY() << ")" << std::endl;
+                std::cout << "Decomposition plant spawned at (" << pos.getX() << ", " << pos.getY() 
+                         << ") with " << nutrients << " nutrients" << std::endl;
             }
         }
     }

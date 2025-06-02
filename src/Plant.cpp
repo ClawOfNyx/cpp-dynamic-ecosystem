@@ -1,6 +1,6 @@
 #include "Plant.h"
 #include "Grid.h"
-#include "WorldManager.h"  // ADD THIS LINE
+#include "WorldManager.h"
 #include <random>
 #include <vector>
 #include <iostream>
@@ -9,7 +9,7 @@ Plant::Plant(float nutrients, int maxLifespan, float growthRate, float nutrientA
     : Organism(OrganismType::PLANT, nutrients, maxLifespan),
       growthRate(growthRate), 
       nutrientAbsorptionRate(nutrientAbsorptionRate),
-      spreadingThreshold(15.0f) {}
+      spreadingThreshold(8.0f) {}
 
 float Plant::getGrowthRate() const {
     return growthRate;
@@ -31,8 +31,11 @@ void Plant::update(Grid& grid, WorldManager& worldManager) {
     absorbNutrients();
     incrementAge();
     
-    // Try to spread if ready to reproduce
+    std::cout << "Plant at (" << position->getX() << ", " << position->getY() 
+              << ") has " << nutrients << " nutrients (threshold: " << spreadingThreshold << ")" << std::endl;
+    
     if (isReadyToReproduce()) {
+        std::cout << "Plant is ready to reproduce!" << std::endl;
         trySpread(grid, worldManager);
     }
 }
@@ -41,7 +44,10 @@ bool Plant::isReadyToReproduce() const {
     return nutrients > spreadingThreshold;
 }
 
-void Plant::consumeResources() { }
+void Plant::consumeResources() { 
+    // Plants don't consume resources like animals do
+    // They only lose nutrients when reproducing
+}
 
 Organism* Plant::reproduce() {
     if (!isReadyToReproduce()) {
@@ -50,33 +56,51 @@ Organism* Plant::reproduce() {
     
     consumeNutrients(spreadingThreshold / 2);
     
-    // Create offspring at same position - will be moved by trySpread
+    float nutrientVariation = 0.8f + static_cast<float>(rand()) / RAND_MAX * 0.4f; // 0.8 to 1.2
+    float growthVariation = 0.9f + static_cast<float>(rand()) / RAND_MAX * 0.2f;   // 0.9 to 1.1
+    
     return new Plant(
-        spreadingThreshold / 2,
+        spreadingThreshold / 3,  
         maxLifespan,
-        growthRate,
-        nutrientAbsorptionRate
+        growthRate * growthVariation,
+        nutrientAbsorptionRate * nutrientVariation
     );
 }
 
 void Plant::absorbNutrients() {
-    addNutrients(nutrientAbsorptionRate * growthRate);
+    float absorbed = nutrientAbsorptionRate * growthRate * 2.0f;
+    addNutrients(absorbed);
+    
+    std::cout << "Plant absorbed " << absorbed << " nutrients, total: " << nutrients << std::endl;
 }
 
 void Plant::trySpread(Grid& grid, WorldManager& worldManager) {
     if (!isReadyToReproduce()) {
-        return; // Early exit if not ready
+        std::cout << "Plant not ready to reproduce (nutrients: " << nutrients << "/" << spreadingThreshold << ")" << std::endl;
+        return;
+    }
+    
+    if (!position) {
+        std::cout << "Plant has no position!" << std::endl;
+        return;
     }
     
     std::vector<Position> adjacentPositions = position->getAdjacentPositions();
     std::vector<Position> validPositions;
+    
+    std::cout << "Checking " << adjacentPositions.size() << " adjacent positions for spreading..." << std::endl;
     
     for (const auto& pos : adjacentPositions) {
         if (grid.isInBounds(pos.getX(), pos.getY())) {
             Tile& tile = grid.getTile(pos.getX(), pos.getY());
             if (tile.isEmpty()) {
                 validPositions.push_back(pos);
+                std::cout << "Found valid position: (" << pos.getX() << ", " << pos.getY() << ")" << std::endl;
+            } else {
+                std::cout << "Position (" << pos.getX() << ", " << pos.getY() << ") is occupied" << std::endl;
             }
+        } else {
+            std::cout << "Position (" << pos.getX() << ", " << pos.getY() << ") is out of bounds" << std::endl;
         }
     }
     
@@ -90,7 +114,11 @@ void Plant::trySpread(Grid& grid, WorldManager& worldManager) {
         
         if (offspring) {
             worldManager.addOrganism(offspring, spreadPos);
-            std::cout << "Plant spread to (" << spreadPos.getX() << ", " << spreadPos.getY() << ")" << std::endl;
+            std::cout << "Plant successfully spread to (" << spreadPos.getX() << ", " << spreadPos.getY() << ")" << std::endl;
+        } else {
+            std::cout << "Failed to create offspring!" << std::endl;
         }
+    } else {
+        std::cout << "No valid positions found for spreading" << std::endl;
     }
 }
