@@ -26,12 +26,12 @@ Dinaminė ekosistemos simuliacijos sistema susideda iš komponentų:
 #### Vartotojo panaudos atvejai
 Vartotojas gali nustatyti simuliacijos parametrus kaip pasaulio dydis, augalų bei gyvūnų kiekį ir po to pradėti simuliaciją. Simuliacijos metu vartotojas gali sustabdyti  ir paleisti iš naujo simuliaciją, pereiti prie kito ciklo, pakeisti langelį (pakeisti organizmo stadiją).
 
-![Data flow diagram](./diagrams/use-case.png)
+![use case diagram](./diagrams/use-case.png)
 
 #### Veiklos
 Vartotojui pradėjus ekosistemos simuliaciją su pradiniais duomenimis, ji vyksta kol bus sustabdyta vartotojo. Po kiekvieno ciklo, sistema atnaujina vartotojo grafinę sąsają pagal visų organizmų atliktus veiksmus.
 
-![Data flow diagram](./diagrams/simulation-activity.png)
+![Simulation activity diagram](./diagrams/simulation-activity.png)
 
 Kiekvieno ciklo metu kiekvienas simuliacijoje esantis organizmas atlieka vieną iš leistinų veiksmų:
 - mišta;
@@ -40,7 +40,7 @@ Kiekvieno ciklo metu kiekvienas simuliacijoje esantis organizmas atlieka vieną 
 - juda į kitą vietą;
 - stovi vietoje.
 
-![Data flow diagram](./diagrams/organism-activity.png)
+![Organism activity diagram](./diagrams/organism-activity.png)
 
 ### Technologijos ir infrastruktūra
 - C++
@@ -76,6 +76,9 @@ Kiekvieno ciklo metu kiekvienas simuliacijoje esantis organizmas atlieka vieną 
 
 3. **Ekosistemos ciklai:**
    - Mirusių organizmų vietoje atsiranda nauji augalai
+
+### Klasių diagrama
+![Class diagram](./diagrams/class-diagram.png)
 
 ## Naudojimasis
 
