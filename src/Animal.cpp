@@ -88,7 +88,12 @@ bool Animal::canEat(const Organism* food) const {
     if (animalType == AnimalType::HERBIVORE && food->getType() == OrganismType::PLANT) {
         return true;
     } else if (animalType == AnimalType::CARNIVORE && food->getType() == OrganismType::ANIMAL) {
-        return true;
+        // Carnivores should only eat herbivores, not other carnivores
+        const Animal* animalFood = dynamic_cast<const Animal*>(food);
+        if (animalFood && animalFood->getAnimalType() == AnimalType::HERBIVORE) {
+            return true;
+        }
+        return false;
     } else if (animalType == AnimalType::OMNIVORE) {
         return true;
     }

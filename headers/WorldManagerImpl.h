@@ -23,10 +23,10 @@ public:
     void addOrganism(Organism* organism, int x, int y);
     void removeOrganism(Organism* organism);
     void removeOrganism(int x, int y);
-    void spawnPlantFromDeadOrganism(int x, int y, float nutrients);
+    void spawnPlantFromDeadOrganism(int x, int y, float nutrients, float globalSpreadingThreshold);
     const Grid& getGrid() const;
     int getOrganismCount() const;
-    void removeDeadOrganisms();
+    void removeDeadOrganisms(float spreadingThreshold);
 };
 
 #endif

@@ -12,7 +12,7 @@ private:
     float spreadingThreshold;
 
 public:
-    Plant(float nutrients, int maxLifespan, float growthRate, float nutrientAbsorptionRate);
+    Plant(float nutrients, int maxLifespan, float growthRate, float nutrientAbsorptionRate, float spreadingThreshold = 15.0f);
     
     // Getters
     float getGrowthRate() const;

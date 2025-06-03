@@ -14,6 +14,7 @@ private:
     static WorldManager* instance;
 
     WorldManagerImpl* pImpl;
+    float globalSpreadingThreshold = 12.0f; // Default value
     WorldManager(int width, int height, float baseNutrients = 1.0f);
     ~WorldManager();
 public:
@@ -26,9 +27,13 @@ public:
     void addOrganism(Organism* organism, int x, int y);
     void removeOrganism(Organism* organism);
     void removeOrganism(Position position);
-    void spawnPlantFromDeadOrganism(Position position, float nutrients);
+    void spawnPlantFromDeadOrganism(Position position, float nutrients, float spreadingThreshold);
     const Grid& getGrid() const;
     int getOrganismCount() const;
+    
+    // Getter and setter for global spreading threshold
+    float getGlobalSpreadingThreshold() const { return globalSpreadingThreshold; }
+    void setGlobalSpreadingThreshold(float threshold) { globalSpreadingThreshold = threshold; }
 
     WorldManager(const WorldManager&) = delete;
     WorldManager& operator=(const WorldManager&) = delete;

@@ -32,7 +32,8 @@ void WorldManagerImpl::update(WorldManager& worldManager) {
         }
     }
     
-    removeDeadOrganisms();
+    // Pass the global spreading threshold from the WorldManager
+    removeDeadOrganisms(worldManager.getGlobalSpreadingThreshold());
 }
 
 void WorldManagerImpl::addOrganism(Organism* organism, int x, int y) {
@@ -98,11 +99,31 @@ void WorldManagerImpl::removeOrganism(int x, int y) {
     }
 }
 
-void WorldManagerImpl::spawnPlantFromDeadOrganism(int x, int y, float nutrients) {
+void WorldManagerImpl::spawnPlantFromDeadOrganism(int x, int y, float nutrients, float globalSpreadingThreshold) {
+    // For animals (which have higher nutrients), always try to spawn a plant
+    // For plants that die, use the randomization to prevent infinite spawn/die loops
+    bool isFromAnimal = nutrients > 5.0f;
+    
+    // If it's a plant with low nutrients, only spawn with 50% probability
+    if (!isFromAnimal && (rand() % 100) < 50) {
+        return; // Skip plant spawning for low-nutrient plants
+    }
+    
     if (grid->isInBounds(x, y)) {
         Tile& tile = grid->getTile(x, y);
         if (tile.isEmpty()) {
-            Plant* newPlant = new Plant(nutrients, 100, 0.5f, 0.3f);
+            // Create a plant with randomized properties
+            float growthRate = 0.3f + static_cast<float>(rand()) / RAND_MAX * 0.5f; // 0.3 to 0.8
+            float absorptionRate = 0.2f + static_cast<float>(rand()) / RAND_MAX * 0.3f; // 0.2 to 0.5
+            
+            // Ensure enough nutrients for survival
+            float startingNutrients = std::max(2.0f, nutrients);
+            
+            // Calculate spreading threshold based on growth rate and global threshold
+            float plantSpreadingThreshold = globalSpreadingThreshold * (1.0f + growthRate);
+            
+            // Create the new plant with the calculated spreading threshold
+            Plant* newPlant = new Plant(startingNutrients, 100, growthRate, absorptionRate, plantSpreadingThreshold);
             addOrganism(newPlant, x, y);
         }
     }
@@ -116,29 +137,35 @@ int WorldManagerImpl::getOrganismCount() const {
     return organisms.size();
 }
 
-void WorldManagerImpl::removeDeadOrganisms() {
+void WorldManagerImpl::removeDeadOrganisms(float spreadingThreshold) {
+    
     auto it = organisms.begin();
     while (it != organisms.end()) {
         Organism* organism = *it;
-        if (!organism || organism->isDead()) {
-            if (organism) {
-                // Clear from grid
-                Position pos = organism->getPosition();
-                if (grid->isInBounds(pos.getX(), pos.getY())) {
-                    Tile& tile = grid->getTile(pos.getX(), pos.getY());
-                    if (!tile.isEmpty() && tile.getOccupant() == organism) {
-                        tile.clearOccupant();
-                    }
-                    
-                    // Spawn plant from dead organism
-                    spawnPlantFromDeadOrganism(pos.getX(), pos.getY(), organism->getNutrients() * 0.5f);
+        
+        if (organism->isDead()) {
+            // Get position before removing
+            Position pos = organism->getPosition();
+            int x = pos.getX();
+            int y = pos.getY();
+            float nutrients = organism->getNutrients();
+            
+            // Clear the tile
+            if (grid->isInBounds(x, y)) {
+                Tile& tile = grid->getTile(x, y);
+                if (tile.getOccupant() == organism) {
+                    tile.clearOccupant();
                 }
-                
-                delete organism;
             }
             
             // Remove from vector
             it = organisms.erase(it);
+            
+            // Attempt to spawn a plant at this location with spreading threshold
+            spawnPlantFromDeadOrganism(x, y, nutrients, spreadingThreshold);
+            
+            // Delete the organism
+            delete organism;
         } else {
             ++it;
         }

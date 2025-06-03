@@ -5,11 +5,11 @@
 #include <vector>
 #include <iostream>
 
-Plant::Plant(float nutrients, int maxLifespan, float growthRate, float nutrientAbsorptionRate)
+Plant::Plant(float nutrients, int maxLifespan, float growthRate, float nutrientAbsorptionRate, float spreadingThreshold)
     : Organism(OrganismType::PLANT, nutrients, maxLifespan),
       growthRate(growthRate), 
       nutrientAbsorptionRate(nutrientAbsorptionRate),
-      spreadingThreshold(15.0f) {}
+      spreadingThreshold(spreadingThreshold) {}
 
 float Plant::getGrowthRate() const {
     return growthRate;
@@ -55,7 +55,8 @@ Organism* Plant::reproduce() {
         spreadingThreshold / 2,
         maxLifespan,
         growthRate,
-        nutrientAbsorptionRate
+        nutrientAbsorptionRate,
+        spreadingThreshold  // Pass the same spreading threshold to offspring
     );
 }
 

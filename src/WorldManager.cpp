@@ -40,8 +40,8 @@ void WorldManager::removeOrganism(Position position) {
     pImpl->removeOrganism(position.getX(), position.getY());
 }
 
-void WorldManager::spawnPlantFromDeadOrganism(Position position, float nutrients) {
-    pImpl->spawnPlantFromDeadOrganism(position.getX(), position.getY(), nutrients);
+void WorldManager::spawnPlantFromDeadOrganism(Position position, float nutrients, float spreadingThreshold) {
+    pImpl->spawnPlantFromDeadOrganism(position.getX(), position.getY(), nutrients, spreadingThreshold);
 }
 
 const Grid& WorldManager::getGrid() const {
