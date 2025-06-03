@@ -98,3 +98,115 @@ Simuliacija pagal nutylėjimą vyksta 2 FPS greičiu, kad būtų galima stebėti
 **Vieta:** `WorldManager.h/WorldManager.cpp`
 
 **Paskirtis:** Užtikrina, kad egzistuoja tik vienas WorldManager egzempliorius, kuris valdo visą simuliacijos būseną.
+
+## Testavimo scenarijai
+### Scenarijus 1: Gyvūnų funkcionalumas
+**Pradinis būsena:** Kuriami įvairūs gyvūnai su skirtingais parametrais
+**Tikėtinas rezultatas:**
+- Gyvūnai teisingai sukuriami su nurodytais parametrais (maistingosios medžiagos, tipas, greitis, regėjimo atstumas)
+- Gyvūnai gali dauginimosi būklėje patikrinti ar pasirengę dauginimosi procesui
+- Gyvūnai sėkmingai dauginasi kai turi pakankamai maistingųjų medžiagų
+- Gyvūnai vartoja išteklius pagal savo poreikius
+
+### Scenarijus 2: Gyvūnų mityba ir dietos apribojimai
+**Pradinis būsena:** Kuriami žolėdžiai, plėšrūnai ir visaėdžiai gyvūnai bei jų galima pėdal
+**Tikėtinas rezultatas:**
+- Žolėdžiai gali valgyti tik augalus
+- Plėšrūnai gali valgyti tik kitus gyvūnus
+- Visaėdžiai gali valgyti ir augalus, ir gyvūnus
+- Valgymas prideda teisingą kiekį maistingųjų medžiagų
+
+### Scenarijus 3: Gyvūnų dauginimasis su maistingųjų medžiagų suvartojimu
+**Pradinis būsena:** Gyvūnai su skirtingais maistingųjų medžiagų kiekiais
+**Tikėtinas rezultatas:**
+- Dauginimasis suvartoja teisingą kiekį maistingųjų medžiagų
+- Palikuonys gauna teisingas pradines maistingąsias medžiagas
+- Palikuonys paveldi tėvų savybes su variacijom
+
+### Scenarijus 4: Gyvūnų senėjimas ir mirtis
+**Pradinis būsena:** Gyvūnai su skirtingu amžiumi ir maistingųjų medžiagų kiekiu
+**Tikėtinas rezultatas:**
+- Gyvūnai miršta nuo senatvės pasiekę maksimalų amžių
+- Gyvūnai miršta nuo bado išsekus maistingoms medžiagoms
+- Gyvūnai išgyvena turėdami pakankamai maistingųjų medžiagų ir būdami jauni
+
+### Scenarijus 5: Organizmų bazinis funkcionalumas
+**Pradinis būsena:** Kuriami baziniai organizmai (augalai)
+**Tikėtinas rezultatas:**
+- Organizmai teisingai sukuriami su pradiniais parametrais
+- Maistingųjų medžiagų valdymas veikia teisingai (pridėjimas/suvartojimas)
+- Amžiaus valdymas veikia teisingai
+- Mirties sąlygos (amžius/badavimas) veikia teisingai
+
+### Scenarijus 6: Organizmų pozicijos valdymas
+**Pradinis būsena:** Organizmai be pozicijos arba su pradinėmis pozicijomis
+**Tikėtinas rezultatas:**
+- Pozicijos teisingai nustatomos ir gaunamos
+- Pozicijos gali būti atnaujinamos
+- Organizmai atpažįstami pagal tipą (augalas/gyvūnas)
+
+### Scenarijus 7: Augalų augimas ir dauginimasis
+**Pradinis būsena:** Augalai su skirtingais maistingųjų medžiagų kiekiais
+**Tikėtinas rezultatas:**
+- Augalai absorbuoja maistingąsias medžiagas pagal savo rodiklius
+- Augalai pasirengę dauginimosi procesui turėdami >8 maistingųjų medžiagų
+- Sėkmingas dauginimasis sukuria palikuonis ir suvartoja tėvų maistingąsias medžiagas
+- Augalai nevartoja išteklių kaip gyvūnai
+
+### Scenarijus 8: Pozicijos matematika
+**Pradinis būsena:** Pozicijos objektai su skirtingomis koordinatėmis
+**Tikėtinas rezultatas:**
+- Atstumo skaičiavimas veikia teisingai (horizontalus, vertikalus, įstrižas)
+- Gretimų pozicijų radimas veikia teisingai
+- Neigiamų koordinačių filtravimas kampuose ir kraštuose
+
+### Scenarijus 9: Langelių ir tinklelio funkcionalumas
+**Pradinis būsena:** Tušti langeliai ir tinkleliai su skirtingais dydžiais
+**Tikėtinas rezultatas:**
+- Langeliai teisingai saugo ir valdo organizmus
+- Tinklelio ribos tikrinamos teisingai
+- Artimiausių tuščių langelių ir organizmų paieška veikia
+- Klaidų apdorojimas už ribų esantiems elementams
+
+### Scenarijus 10: Pasaulio valdytojo singleton šablonas
+**Pradinis būsena:** Pasaulio valdytojo egzempliorių kūrimas
+**Tikėtinas rezultatas:**
+- Singleton šablonas užtikrina vieną egzempliorių
+- Tinklelis sukuriamas su pradiniais parametrais
+- Tinklelis nepersikuria su naujais parametrais
+
+### Scenarijus 11: Organizmų valdymas pasaulio valdytoje
+**Pradinis būsena:** Tuščias pasaulis ir organizmai pridėjimui
+**Tikėtinas rezultatas:**
+- Organizmai sėkmingai pridedami į tinklelį
+- Apsauga nuo dubliavimo užimtuose langeliuose
+- Apsauga nuo pridėjimo už tinklelio ribų
+- Null objektų apdorojimas
+
+### Scenarijus 12: Organizmų šalinimas
+**Pradinis būsena:** Pasaulis su organizmais
+**Tikėtinas rezultatas:**
+- Organizmai šalinami pagal nuorodą arba poziciją
+- Langeliai išvalomi po šalinimo
+- Null ir tuščių pozicijų apdorojimas
+
+### Scenarijus 13: Augalų atsiradimas iš mirusiųjų organizmų
+**Pradinis būsena:** Pozicijos kur turi atsirasti augalai iš mirusiųjų organizmų
+**Tikėtinas rezultatas:**
+- Augalai sukuriami su teisingais maistingųjų medžiagų kiekiais
+- Minimalių maistingųjų medžiagų užtikrinimas
+- Apsauga nuo kūrimo užimtuose langeliuose
+
+### Scenarijus 14: Pasaulio atnaujinimo funkcionalumas
+**Pradinis būsena:** Pasaulis su organizmais arba be jų
+**Tikėtinas rezultatas:**
+- Atnaujinimas nesugriauna tuščio pasaulio
+- Organizmų gyvavimo ciklų valdymas
+- Organizmų mirties ir skilimo apdorojimas
+
+### Scenarijus 15: Integruotos ekosistemos simuliacija
+**Pradinis būsena:** Mišri ekosistema su augalais ir gyvūnais
+**Tikėtinas rezultatas:**
+- Bazinė ekosistema lieka stabili per kelis atnaujinimo ciklus
+- Daugiorganizminė ekosistema veikia ribotose srityse
+- Sistema išlaiko protingus organizmų skaičius
